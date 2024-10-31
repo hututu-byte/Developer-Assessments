@@ -1,65 +1,18 @@
-# src/main/resources/application.yml
-
-# Spring Boot 应用的基础配置
 spring:
-  # 数据源配置（MySQL）
   datasource:
-    url: jdbc:mysql://localhost:3306/developer_assessments?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root      # 替换为你的 MySQL 用户名
-    password: 147258369      # 替换为你的 MySQL 密码
+    url: jdbc:mysql://localhost:3306/developer_assessments?useSSL=false&characterEncoding=utf8&serverTimezone=UTC
+    username: root
+    password: 147258369
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  # MyBatis 配置
-  mybatis:
-    mapper-locations: classpath:mapper/**/*.xml  # 指定 Mapper XML 文件的位置
-    type-aliases-package: com.yourcompany.github_evaluator.entity  # 指定实体类的包路径，便于 MyBatis 使用别名
-    configuration:
-      map-underscore-to-camel-case: true          # 启用驼峰命名转换，自动将数据库下划线命名转换为 Java 驼峰命名
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.developerassessmentsmaster.domain.entity
 
-  # JPA 配置（可选，如果不使用 JPA，可以忽略）
-  jpa:
-    show-sql: false                             # 是否显示 SQL 语句，开发阶段可设置为 true
-    hibernate:
-      ddl-auto: none                            # 数据库表自动创建策略，使用 MyBatis 时通常设置为 none
+redis:
+  host: localhost
+  port: 6379
 
-  # 缓存配置
-  cache:
-    type: redis                                  # 指定缓存类型为 Redis
-
-  # Redis 配置
-  data:
-    redis:
-      port: 6379
-      host: localhost
-  # 日志配置
-  logging:
-    level:
-      root: INFO                                   # 全局日志级别
-      com.yourcompany.github_evaluator: DEBUG      # 你项目的日志级别，调试时可设置为 DEBUG
-
-
-# 服务器配置
-server:
-  port: 8080                                       # Spring Boot 运行端口，默认 8080
-
-# Spring Cache 配置（自定义缓存管理器）
-# Redis 缓存管理器的自定义配置（可选）
-# 如果需要自定义缓存行为，如设置缓存过期时间，可以创建一个 Redis 配置类
-# 并在这里进行相关配置
-
-# 示例：使用 Redis 作为默认缓存管理器，并设置默认缓存过期时间为 1 小时
-# 需要在 Java 代码中创建相应的配置类
-# 以下为 Java 配置示例，不在 yml 文件中配置
-
-# 安全性配置（可选）
-# 如果需要集成 Spring Security，可以在这里进行相关配置
-# 例如，禁用 CSRF，允许某些端点不需要认证等
-# 这里暂不展开，具体根据项目需求配置
-
-# Swagger 配置（可选）
-# 如果需要集成 Swagger 进行 API 文档生成，可以在这里配置相关信息
-# 这里暂不展开，具体根据项目需求配置
-
-# 其他配置
-# 根据项目需求，添加其他必要的配置项
-
+github:
+  api:
+    token: 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

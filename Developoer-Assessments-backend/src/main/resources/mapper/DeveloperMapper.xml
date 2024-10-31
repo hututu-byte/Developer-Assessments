@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.developerassessmentsmaster.repository.DeveloperMapper">
+
+    <resultMap id="DeveloperResultMap" type="com.example.developerassessmentsmaster.model.Developer">
+        <id column="id" property="id" />
+        <result column="github_id" property="githubId" />
+        <result column="github_username" property="githubUsername" />
+        <result column="name" property="name" />
+        <result column="email" property="email" />
+        <result column="nation_id" property="nationId" />
+        <result column="talent_rank" property="talentRank" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <insert id="insertDeveloper" parameterType="com.example.developerassessmentsmaster.model.Developer">
+        INSERT INTO developers (github_id, github_username, name, email, nation_id, talent_rank, created_at, updated_at)
+        VALUES (#{githubId}, #{githubUsername}, #{name}, #{email}, #{nationId}, #{talentRank}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <select id="getAllDevelopers" resultMap="DeveloperResultMap">
+        SELECT * FROM developers
+    </select>
+
+    <select id="getDeveloperById" parameterType="int" resultMap="DeveloperResultMap">
+        SELECT * FROM developers WHERE id = #{id}
+    </select>
+
+</mapper>
