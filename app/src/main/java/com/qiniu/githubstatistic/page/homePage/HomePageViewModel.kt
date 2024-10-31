@@ -19,7 +19,7 @@ class HomePageViewModel @Inject constructor() : ViewModel() {
     val homeIntent = _homeIntent.asSharedFlow()
 
     init {
-        // 如果有初始化逻辑，可以在这里处理
+
     }
 
     fun processIntent(intent: HomeIntent) {
@@ -27,9 +27,17 @@ class HomePageViewModel @Inject constructor() : ViewModel() {
             when(intent) {
                 is HomeIntent.FetchData -> {
                     // 处理意图并更新状态
-                    _homeState.value = _homeState.value.copy()
+                    val list = _homeState.value.userList.toMutableList().addAndReturn("")
+                    _homeState.value = _homeState.value.copy(userList = list)
                 }
             }
         }
     }
+
+
+}
+
+fun <T> MutableList<T>.addAndReturn(vararg elements: T): MutableList<T> {
+    this.addAll(elements)
+    return this
 }

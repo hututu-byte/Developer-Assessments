@@ -10,14 +10,20 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-object LightModeColor{
-    val BackGroundColor = Color(0xFFFFFBFF)
-    val CardColor = Color(0xFFFFFFFF)
-    val TabRowColor = Color(0xFFFFF5F5)
-}
+val TagColorLight = Color(0xFFFFF5F5)
+val TagColorDark = Color(0xFF5B6080)
 
-object DarkModeColor{
-    val BackGroundColor = Color(0xFF333333)
-    val CardColor = Color(0xFF4E505C)
-    val TabRowColor = Color(0xFF575757)
-}
+val OnBackgroundLight = Color(0xFFFCFCFC)
+val OnBackgroundDark = Color(0xFF323232)
+
+//object LightModeColor{
+//    val BackGroundColor = Color(0xFFFFFBFF)
+//    val CardColor = Color(0xFFFFFFFF)
+//    val TabRowColor = Color(0xFFFFF5F5)
+//}
+//
+//object DarkModeColor{
+//    val BackGroundColor = Color(0xFF333333)
+//    val CardColor = Color(0xFF4E505C)
+//    val TabRowColor = Color(0xFF575757)
+//}
