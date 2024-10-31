@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/developer_assessments?useSSL=false&characterEncoding=utf8&serverTimezone=UTC
-    username: root
-    password: 147258369
+    username: your_username
+    password: your_password
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
@@ -15,4 +15,4 @@ redis:
 
 github:
   api:
-    token: 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
+    token: your_token
