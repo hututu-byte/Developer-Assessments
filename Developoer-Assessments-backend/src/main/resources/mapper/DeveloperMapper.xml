@@ -8,17 +8,15 @@
         <id column="id" property="id" />
         <result column="github_id" property="githubId" />
         <result column="github_username" property="githubUsername" />
-        <result column="name" property="name" />
-        <result column="email" property="email" />
-        <result column="nation_id" property="nationId" />
+        <result column="country" property="country" /> <!-- 更新国家字段 -->
         <result column="talent_rank" property="talentRank" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
     </resultMap>
 
     <insert id="insertDeveloper" parameterType="com.example.developerassessmentsmaster.model.Developer">
-        INSERT INTO developers (github_id, github_username, name, email, nation_id, talent_rank, created_at, updated_at)
-        VALUES (#{githubId}, #{githubUsername}, #{name}, #{email}, #{nationId}, #{talentRank}, #{createdAt}, #{updatedAt})
+        INSERT INTO developers (github_id, github_username, country, talent_rank, created_at, updated_at)
+        VALUES (#{githubId}, #{githubUsername}, #{country}, #{talentRank}, #{createdAt}, #{updatedAt})
     </insert>
 
     <select id="getAllDevelopers" resultMap="DeveloperResultMap">

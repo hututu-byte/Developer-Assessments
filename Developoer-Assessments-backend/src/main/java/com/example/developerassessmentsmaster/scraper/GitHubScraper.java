@@ -33,8 +33,12 @@ public class GitHubScraper {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            return new JSONArray(response.body().string());
+            if (!response.isSuccessful()) {
+                System.err.println("Failed to fetch projects: " + response.code());
+                throw new IOException("Unexpected code " + response);
+            }
+            String responseBody = response.body().string();
+            return new JSONArray(responseBody);
         }
     }
 }

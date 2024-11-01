@@ -1,6 +1,7 @@
 package com.example.developerassessmentsmaster;
 
 import com.example.developerassessmentsmaster.model.Developer;
+import com.example.developerassessmentsmaster.model.Project;
 import com.example.developerassessmentsmaster.service.DeveloperService;
 import com.example.developerassessmentsmaster.scraper.GitHubScraper;
 import org.json.JSONArray;
@@ -23,8 +24,7 @@ public class GitHubScraperTest {
     @Test
     public void testFetchDevelopersAndSave() {
         try {
-            // 爬取开发者数据
-            JSONArray developers = scraper.fetchDevelopers("java", 10);
+            JSONArray developers = scraper.fetchDevelopers("springboot", 5);
             assertNotNull(developers);
             assertTrue(developers.length() > 0);
 
@@ -33,28 +33,34 @@ public class GitHubScraperTest {
                 Developer developer = new Developer();
                 developer.setGithubId(devJson.getLong("id"));
                 developer.setGithubUsername(devJson.getString("login"));
-                // 根据需要填充其他字段
+                developer.setCountry(devJson.optString("country", ""));
+                developer.setTalentRank(devJson.optDouble("talent_rank", 0.0));
 
-                // 保存开发者到数据库
-                developerService.addDeveloper(developer); // 确保调用的是 addDeveloper 方法
+                // 保存开发者并确保获取到ID
+                developerService.addDeveloper(developer);
+                Long developerId = developer.getGithubId(); // 获取开发者的ID
+                assertNotNull(developerId, "Developer ID should not be null after saving");
 
-                // 爬取项目数据
                 JSONArray projects = scraper.fetchProjects(devJson.getString("login"));
                 assertNotNull(projects);
 
                 for (int j = 0; j < projects.length(); j++) {
                     JSONObject projJson = projects.getJSONObject(j);
-                    // 在此处根据项目模型创建项目对象并保存
-                    // Project project = new Project();
-                    // project.setGithubId(projJson.getLong("id"));
-                    // project.setOwner(projJson.getString("owner"));
-                    // project.setName(projJson.getString("name"));
-                    // developerService.saveProject(project); // 保存项目到数据库
+                    Project project = new Project();
+                    project.setGithubId(projJson.getLong("id"));
+
+                    project.setName(projJson.getString("name"));
+                    project.setStars(projJson.getInt("stargazers_count"));
+                    project.setForks(projJson.getInt("forks_count"));
+                    project.setDescription(projJson.optString("description", ""));
+                    project.setUrl(projJson.optString("html_url", "")); // 添加项目地址
+
+                    developerService.saveProject(project);
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             fail("Exception thrown: " + e.getMessage());
         }
     }
 }
-
