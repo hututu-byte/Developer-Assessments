@@ -24,7 +24,7 @@ public class GitHubScraperTest {
     @Test
     public void testFetchDevelopersAndSave() {
         try {
-            JSONArray developers = scraper.fetchDevelopers("springboot", 5);
+            JSONArray developers = scraper.fetchDevelopers("java", 5);
             assertNotNull(developers);
             assertTrue(developers.length() > 0);
 
@@ -33,14 +33,21 @@ public class GitHubScraperTest {
                 Developer developer = new Developer();
                 developer.setGithubId(devJson.getLong("id"));
                 developer.setGithubUsername(devJson.getString("login"));
-                developer.setCountry(devJson.optString("country", ""));
-                developer.setTalentRank(devJson.optDouble("talent_rank", 0.0));
 
-                // 保存开发者并确保获取到ID
+                // Fetch additional details for developer
+                JSONObject details = scraper.fetchDeveloperDetails(developer.getGithubId());
+                developer.setCountry(details.optString("location", ""));
+                developer.setTalentRank(0.0); // You can implement a way to calculate this later
+                developer.setBio(details.optString("bio", ""));
+                developer.setFollowing(details.optInt("following", 0));
+                developer.setFollowers(details.optInt("followers", 0));
+
+                // Save developer
                 developerService.addDeveloper(developer);
-                Long developerId = developer.getGithubId(); // 获取开发者的ID
+                Long developerId = developer.getGithubId();
                 assertNotNull(developerId, "Developer ID should not be null after saving");
 
+                // Fetch and save projects
                 JSONArray projects = scraper.fetchProjects(devJson.getString("login"));
                 assertNotNull(projects);
 
@@ -48,12 +55,13 @@ public class GitHubScraperTest {
                     JSONObject projJson = projects.getJSONObject(j);
                     Project project = new Project();
                     project.setGithubId(projJson.getLong("id"));
-
                     project.setName(projJson.getString("name"));
                     project.setStars(projJson.getInt("stargazers_count"));
                     project.setForks(projJson.getInt("forks_count"));
                     project.setDescription(projJson.optString("description", ""));
-                    project.setUrl(projJson.optString("html_url", "")); // 添加项目地址
+                    project.setUrl(projJson.optString("html_url", ""));
+                    project.setCreatorId(developerId); // Set owner ID
+                    project.setLanguage(projJson.optString("language", "")); // 获取语言标签
 
                     developerService.saveProject(project);
                 }

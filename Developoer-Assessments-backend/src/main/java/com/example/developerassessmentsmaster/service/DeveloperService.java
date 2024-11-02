@@ -25,9 +25,6 @@ public class DeveloperService {
     @Autowired
     private GitHubScraper gitHubScraper;
 
-    public List<Developer> getDevelopers() {
-        return developerMapper.getAllDevelopers();
-    }
 
     public void addDeveloper(Developer developer) {
         developerMapper.insertDeveloper(developer);
@@ -39,13 +36,27 @@ public class DeveloperService {
             Developer developer = new Developer();
             developer.setGithubId(devJson.getLong("id"));
             developer.setGithubUsername(devJson.getString("login"));
-            developer.setCountry(devJson.optString("country")); // 添加国家字段
-            developer.setTalentRank(devJson.optDouble("talent_rank", 0.0)); // 添加技术能力评级字段
+            developer.setCountry(devJson.optString("location", ""));
+            developer.setTalentRank(0.0);
+            developer.setBio(devJson.optString("bio", ""));
+            developer.setFollowing(devJson.optInt("following", 0));
+            developer.setFollowers(devJson.optInt("followers", 0));
             developer.setCreatedAt(LocalDateTime.now());
             developer.setUpdatedAt(LocalDateTime.now());
+
+            // 保存开发者
             developerMapper.insertDeveloper(developer);
+
+            // 获取并保存开发者的项目
+            List<Project> projects = getDeveloperProjects(developer.getGithubUsername());
+            for (Project project : projects) {
+                project.setCreatorId(developer.getGithubId()); // 使用 creatorId 作为项目拥有者ID
+                saveProject(project);
+            }
         }
     }
+
+
 
     public List<Project> getDeveloperProjects(String username) {
         try {
@@ -56,11 +67,12 @@ public class DeveloperService {
                 JSONObject projectJson = projectsJson.getJSONObject(i);
                 Project project = new Project();
                 project.setGithubId(projectJson.getLong("id"));
-//                project.setOwnerId(projectJson.getLong("owner_id")); // 设置所有者开发者的ID
+                project.setCreatorId(projectJson.getLong("owner_id")); // 设置所有者开发者的ID
                 project.setName(projectJson.getString("name"));
                 project.setStars(projectJson.getInt("stargazers_count"));
                 project.setForks(projectJson.getInt("forks_count"));
                 project.setDescription(projectJson.optString("description", ""));
+                project.setLanguage(projectJson.optString("language", "")); // 获取语言标签
 
                 projects.add(project);
             }
@@ -71,6 +83,7 @@ public class DeveloperService {
             return null;
         }
     }
+
 
     public void saveProject(Project project) {
         project.setCreatedAt(LocalDateTime.now());

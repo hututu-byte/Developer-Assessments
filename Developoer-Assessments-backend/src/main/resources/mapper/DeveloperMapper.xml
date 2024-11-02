@@ -8,23 +8,18 @@
         <id column="id" property="id" />
         <result column="github_id" property="githubId" />
         <result column="github_username" property="githubUsername" />
-        <result column="country" property="country" /> <!-- 更新国家字段 -->
+        <result column="country" property="country" />
         <result column="talent_rank" property="talentRank" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
+        <result column="bio" property="bio" />
+        <result column="following" property="following" />
+        <result column="followers" property="followers" />
     </resultMap>
 
     <insert id="insertDeveloper" parameterType="com.example.developerassessmentsmaster.model.Developer">
-        INSERT INTO developers (github_id, github_username, country, talent_rank, created_at, updated_at)
-        VALUES (#{githubId}, #{githubUsername}, #{country}, #{talentRank}, #{createdAt}, #{updatedAt})
+        INSERT INTO developers (github_id, github_username, country, talent_rank, created_at, updated_at, bio, following, followers)
+        VALUES (#{githubId}, #{githubUsername}, #{country}, #{talentRank}, #{createdAt}, #{updatedAt}, #{bio}, #{following}, #{followers})
     </insert>
-
-    <select id="getAllDevelopers" resultMap="DeveloperResultMap">
-        SELECT * FROM developers
-    </select>
-
-    <select id="getDeveloperById" parameterType="int" resultMap="DeveloperResultMap">
-        SELECT * FROM developers WHERE id = #{id}
-    </select>
 
 </mapper>

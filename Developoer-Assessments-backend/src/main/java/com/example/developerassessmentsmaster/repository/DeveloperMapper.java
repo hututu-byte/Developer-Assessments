@@ -6,7 +6,6 @@ import java.util.List;
 
 @Mapper
 public interface DeveloperMapper {
-    List<Developer> getAllDevelopers();
     void insertDeveloper(Developer developer);
 
 }

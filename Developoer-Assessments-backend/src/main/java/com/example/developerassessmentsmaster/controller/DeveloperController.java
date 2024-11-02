@@ -14,11 +14,6 @@ public class DeveloperController {
     @Autowired
     private DeveloperService developerService;
 
-    @GetMapping
-    public List<Developer> getAllDevelopers() {
-        return developerService.getDevelopers();
-    }
-
     @PostMapping
     public void addDeveloper(@RequestBody Developer developer) {
         developerService.addDeveloper(developer);

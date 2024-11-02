@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface ProjectMapper {
-    @Insert("INSERT INTO Projects (github_id, name, stars, forks, description, created_at, updated_at) " +
-            "VALUES (#{githubId}, #{name}, #{stars}, #{forks}, #{description}, #{createdAt}, #{updatedAt})")
+    @Insert("INSERT INTO projects (github_id, creator_id, name, stars, forks, description, language, created_at, updated_at) " +
+            "VALUES (#{githubId}, #{creatorId}, #{name}, #{stars}, #{forks}, #{description}, #{language}, #{createdAt}, #{updatedAt})")
     void insertProject(Project project);
 }

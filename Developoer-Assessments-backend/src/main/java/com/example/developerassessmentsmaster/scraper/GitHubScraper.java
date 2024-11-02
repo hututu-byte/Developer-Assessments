@@ -34,11 +34,26 @@ public class GitHubScraper {
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                System.err.println("Failed to fetch projects: " + response.code());
                 throw new IOException("Unexpected code " + response);
             }
             String responseBody = response.body().string();
             return new JSONArray(responseBody);
+        }
+    }
+
+
+    public JSONObject fetchDeveloperDetails(Long githubId) throws Exception {
+        String url = "https://api.github.com/user/" + githubId;
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                System.err.println("Failed to fetch developer details: " + response.code());
+                throw new IOException("Unexpected code " + response);
+            }
+            return new JSONObject(response.body().string());
         }
     }
 }
