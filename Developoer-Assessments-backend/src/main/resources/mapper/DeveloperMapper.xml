@@ -22,4 +22,14 @@
         VALUES (#{githubId}, #{githubUsername}, #{country}, #{talentRank}, #{createdAt}, #{updatedAt}, #{bio}, #{following}, #{followers})
     </insert>
 
+    <update id="updateDeveloperByGithubId" parameterType="com.example.developerassessmentsmaster.model.Developer">
+        UPDATE developers
+        SET talent_rank = #{talentRank}, updated_at = CURRENT_TIMESTAMP
+        WHERE github_id = #{githubId}
+    </update>
+
+    <select id="getDeveloperByGithubId" resultMap="DeveloperResultMap" parameterType="long">
+        SELECT * FROM developers WHERE github_id = #{githubId}
+    </select>
+
 </mapper>

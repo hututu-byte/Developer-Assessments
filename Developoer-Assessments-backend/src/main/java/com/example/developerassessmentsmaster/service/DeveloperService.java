@@ -2,6 +2,7 @@ package com.example.developerassessmentsmaster.service;
 
 import com.example.developerassessmentsmaster.model.Developer;
 import com.example.developerassessmentsmaster.model.Project;
+import com.example.developerassessmentsmaster.model.TalentRank;
 import com.example.developerassessmentsmaster.repository.DeveloperMapper;
 import com.example.developerassessmentsmaster.repository.ProjectMapper;
 import com.example.developerassessmentsmaster.scraper.GitHubScraper;
@@ -25,7 +26,6 @@ public class DeveloperService {
     @Autowired
     private GitHubScraper gitHubScraper;
 
-
     public void addDeveloper(Developer developer) {
         developerMapper.insertDeveloper(developer);
     }
@@ -37,7 +37,6 @@ public class DeveloperService {
             developer.setGithubId(devJson.getLong("id"));
             developer.setGithubUsername(devJson.getString("login"));
             developer.setCountry(devJson.optString("location", ""));
-            developer.setTalentRank(0.0);
             developer.setBio(devJson.optString("bio", ""));
             developer.setFollowing(devJson.optInt("following", 0));
             developer.setFollowers(devJson.optInt("followers", 0));
@@ -50,13 +49,46 @@ public class DeveloperService {
             // 获取并保存开发者的项目
             List<Project> projects = getDeveloperProjects(developer.getGithubUsername());
             for (Project project : projects) {
-                project.setCreatorId(developer.getGithubId()); // 使用 creatorId 作为项目拥有者ID
+                project.setCreatorId(developer.getGithubId());
                 saveProject(project);
             }
+
+            // 更新开发者的 TalentRank
+            updateDeveloperTalentRank(developer.getId());
         }
     }
 
+    public void updateDeveloperTalentRank(Long githubId) {
+        Developer developer = developerMapper.getDeveloperByGithubId(githubId);
+        if (developer == null) {
+            throw new IllegalArgumentException("Developer not found with github_id: " + githubId);
+        }
 
+        // 打印开发者信息以调试
+        System.out.println("Updating developer: " + developer.getGithubUsername());
+
+        // 获取开发者的项目
+        List<Project> projects = projectMapper.getProjectsByCreatorId(developer.getGithubId());
+
+        // 计算总星标和分叉数
+        int totalStars = projects.stream().mapToInt(Project::getStars).sum();
+        int totalForks = projects.stream().mapToInt(Project::getForks).sum();
+
+        // 更新 TalentRank
+        developer.setTalentRank(calculateTalentRank(developer, totalStars, totalForks));
+        developerMapper.updateDeveloperByGithubId(developer);
+    }
+
+    private TalentRank calculateTalentRank(Developer developer, int totalStars, int totalForks) {
+        double score = (developer.getFollowers() * 0.4) + (totalStars * 0.4) + (totalForks * 0.2);
+        if (score < 30) {
+            return TalentRank.LOW;
+        } else if (score < 70) {
+            return TalentRank.MEDIUM;
+        } else {
+            return TalentRank.HIGH;
+        }
+    }
 
     public List<Project> getDeveloperProjects(String username) {
         try {
@@ -83,7 +115,6 @@ public class DeveloperService {
             return null;
         }
     }
-
 
     public void saveProject(Project project) {
         project.setCreatedAt(LocalDateTime.now());

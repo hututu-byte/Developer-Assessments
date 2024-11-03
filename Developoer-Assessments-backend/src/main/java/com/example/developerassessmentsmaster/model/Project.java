@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class Project {
+    private Long Id; //主键ID
     private Long githubId; // 项目ID
     private Long creatorId; // 项目拥有者的GitHub ID
     private String name; // 项目名称

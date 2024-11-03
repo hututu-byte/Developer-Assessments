@@ -2,6 +2,7 @@ package com.example.developerassessmentsmaster;
 
 import com.example.developerassessmentsmaster.model.Developer;
 import com.example.developerassessmentsmaster.model.Project;
+import com.example.developerassessmentsmaster.model.TalentRank;
 import com.example.developerassessmentsmaster.service.DeveloperService;
 import com.example.developerassessmentsmaster.scraper.GitHubScraper;
 import org.json.JSONArray;
@@ -12,6 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 爬取数据测试类
+ */
 @SpringBootTest
 public class GitHubScraperTest {
 
@@ -37,7 +41,8 @@ public class GitHubScraperTest {
                 // Fetch additional details for developer
                 JSONObject details = scraper.fetchDeveloperDetails(developer.getGithubId());
                 developer.setCountry(details.optString("location", ""));
-                developer.setTalentRank(0.0); // You can implement a way to calculate this later
+                //TODO 需要添加计算talenntRank的方法
+                developer.setTalentRank(TalentRank.LOW); // 假设初始为 LOW，可以根据实际情况调整
                 developer.setBio(details.optString("bio", ""));
                 developer.setFollowing(details.optInt("following", 0));
                 developer.setFollowers(details.optInt("followers", 0));

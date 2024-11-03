@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.developerassessmentsmaster.repository.ProjectMapper">
+
+    <resultMap id="ProjectResultMap" type="com.example.developerassessmentsmaster.model.Project">
+        <id column="id" property="id" />
+        <result column="github_id" property="githubId" />
+        <result column="creator_id" property="creatorId" />
+        <result column="name" property="name" />
+        <result column="stars" property="stars" />
+        <result column="forks" property="forks" />
+        <result column="description" property="description" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="language" property="language" />
+    </resultMap>
+
+    <select id="getProjectsByCreatorId" resultMap="ProjectResultMap" parameterType="long">
+        SELECT * FROM projects WHERE creator_id = #{creatorId}
+    </select>
+
+    <insert id="insertProject" parameterType="com.example.developerassessmentsmaster.model.Project">
+        INSERT INTO projects (github_id, creator_id, name, stars, forks, description, language, created_at, updated_at)
+        VALUES (#{githubId}, #{creatorId}, #{name}, #{stars}, #{forks}, #{description}, #{language}, #{createdAt}, #{updatedAt})
+    </insert>
+
+</mapper>

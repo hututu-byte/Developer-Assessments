@@ -23,4 +23,6 @@ public class DeveloperController {
     public List<Project> getDeveloperProjects(@PathVariable String username) {
         return developerService.getDeveloperProjects(username);
     }
+
+
 }
