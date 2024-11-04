@@ -3,6 +3,7 @@ package com.example.developerassessmentsmaster.controller;
 import com.example.developerassessmentsmaster.model.Developer;
 import com.example.developerassessmentsmaster.model.DeveloperInfo;
 import com.example.developerassessmentsmaster.model.Project;
+import com.example.developerassessmentsmaster.model.Result;
 import com.example.developerassessmentsmaster.service.DeveloperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,9 @@ public class DeveloperController {
     private DeveloperService developerService;
 
     @GetMapping("/random")
-    public ResponseEntity<List<DeveloperInfo>> getRandomDevelopers() {
+    public Result<List<DeveloperInfo>> getRandomDevelopers() {
         List<DeveloperInfo> developers = developerService.getRandomDevelopersWithProjects();
-        return ResponseEntity.ok(developers);
+        return Result.success(developers);
     }
 
 }
