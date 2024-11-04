@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 @Mapper
 public interface DeveloperMapper {
     void insertDeveloper(Developer developer);
@@ -12,5 +14,8 @@ public interface DeveloperMapper {
     void updateDeveloperByGithubId(Developer developer);
 
     Developer getDeveloperByGithubId(Long githubId);
+
+    List<Developer> getRandomDevelopers();
+
 
 }

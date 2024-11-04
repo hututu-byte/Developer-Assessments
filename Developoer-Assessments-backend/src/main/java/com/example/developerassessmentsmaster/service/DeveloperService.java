@@ -1,11 +1,13 @@
 package com.example.developerassessmentsmaster.service;
 
 import com.example.developerassessmentsmaster.model.Developer;
+import com.example.developerassessmentsmaster.model.DeveloperInfo;
 import com.example.developerassessmentsmaster.model.Project;
 import com.example.developerassessmentsmaster.model.TalentRank;
 import com.example.developerassessmentsmaster.repository.DeveloperMapper;
 import com.example.developerassessmentsmaster.repository.ProjectMapper;
 import com.example.developerassessmentsmaster.scraper.GitHubScraper;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
+@Slf4j
 public class DeveloperService {
     @Autowired
     private DeveloperMapper developerMapper;
@@ -121,4 +126,45 @@ public class DeveloperService {
         project.setUpdatedAt(LocalDateTime.now());
         projectMapper.insertProject(project);
     }
+
+
+
+
+    public List<DeveloperInfo> getRandomDevelopersWithProjects() {
+        List<Developer> developers = developerMapper.getRandomDevelopers();
+        List<DeveloperInfo> developerInfoList = new ArrayList<>();
+
+        for (Developer developer : developers) {
+            String mostCommonTag = getMostCommonProjectTag(developer.getGithubId());
+            DeveloperInfo info = new DeveloperInfo();
+            info.setGithubUsername(developer.getGithubUsername());
+            info.setTalentRank(String.valueOf(developer.getTalentRank()));
+            info.setBio(developer.getBio());
+            info.setCountry(developer.getCountry());
+            info.setMostCommonTag(mostCommonTag);
+            developerInfoList.add(info);
+        }
+
+        return developerInfoList;
+    }
+
+    private String getMostCommonProjectTag(Long developerId) {
+        List<Project> projects = projectMapper.getProjectsByCreatorId(developerId);
+        Map<String, Integer> tagCount = new HashMap<>();
+
+        for (Project project : projects) {
+            String tag = project.getLanguage(); // 假设这里用语言作为标签
+            log.info("developer tag:{}",tag);
+            tagCount.put(tag, tagCount.getOrDefault(tag, 0) + 1);
+        }
+
+        return tagCount.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null); // 如果没有标签，返回 null
+
+    }
+
+
 }
