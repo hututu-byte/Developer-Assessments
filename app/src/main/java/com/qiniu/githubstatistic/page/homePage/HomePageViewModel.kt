@@ -33,8 +33,6 @@ class HomePageViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-
-
 }
 
 fun <T> MutableList<T>.addAndReturn(vararg elements: T): MutableList<T> {

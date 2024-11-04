@@ -1,9 +1,13 @@
 package com.qiniu.githubstatistic.di
 
+import android.content.Context
 import com.coder.vincent.sharp_retrofit.call_adapter.flow.FlowCallAdapterFactory
+import com.qiniu.githubstatistic.database.seachHistory.SearchHistoryDao
+import com.qiniu.githubstatistic.database.seachHistory.SearchHistoryDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -35,13 +39,19 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRetrofitChat(client: OkHttpClient): Retrofit {
+    fun provideRetrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(FlowCallAdapterFactory.create())
             .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideSearchHistoryDao(@ApplicationContext context: Context): SearchHistoryDao {
+        return SearchHistoryDatabase.getDatabase(context).searchHistoryDao()
     }
 
 
