@@ -18,4 +18,5 @@ public class Developer {
     private int following; // 开发者关注人数
     private int followers; // 开发者粉丝人数
     private List<Project> projects; // 开发者的项目列表
+    private Double Score;
 }

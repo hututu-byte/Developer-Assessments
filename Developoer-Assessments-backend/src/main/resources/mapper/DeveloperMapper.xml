@@ -17,6 +17,11 @@
         <result column="followers" property="followers" />
     </resultMap>
 
+    <!-- 查询所有开发者 -->
+    <select id="findAllDevelopers" resultMap="DeveloperResultMap">
+        SELECT * FROM developers;
+    </select>
+
     <insert id="insertDeveloper" parameterType="com.example.developerassessmentsmaster.model.Developer">
         INSERT INTO developers (github_id, github_username, country, talent_rank, created_at, updated_at, bio, following, followers)
         VALUES (#{githubId}, #{githubUsername}, #{country}, #{talentRank}, #{createdAt}, #{updatedAt}, #{bio}, #{following}, #{followers})
@@ -24,7 +29,7 @@
 
     <update id="updateDeveloperByGithubId" parameterType="com.example.developerassessmentsmaster.model.Developer">
         UPDATE developers
-        SET talent_rank = #{talentRank}, updated_at = CURRENT_TIMESTAMP
+        SET talent_rank = #{talentRank}, updated_at = CURRENT_TIMESTAMP , score = #{score}
         WHERE github_id = #{githubId}
     </update>
 
@@ -38,5 +43,66 @@
         ORDER BY RAND()
         LIMIT 10
     </select>
+
+    <!-- 获取开发者最常见标签 -->
+    <select id="getMostCommonTagByDeveloper" resultType="com.example.developerassessmentsmaster.model.LanguageCount">
+        SELECT github_id, language, COUNT(*) AS tag_count
+        FROM projects
+        WHERE github_id = #{githubId}
+        GROUP BY github_id, language
+        ORDER BY tag_count DESC
+        LIMIT 1
+    </select>
+
+    <!-- 根据 github_username 和国家查询开发者 -->
+    <select id="findDevelopersByGithubUsernameAndCountry" resultMap="DeveloperResultMap">
+        SELECT * FROM developers
+        WHERE github_username LIKE CONCAT('%', #{githubUsername}, '%')
+          AND country = #{country}
+    </select>
+
+    <select id="findDevelopersByGithubUsernameLanguageAndCountry" resultMap="DeveloperResultMap">
+        SELECT * FROM developers
+        WHERE 1=1
+        <if test="githubUsername != null and githubUsername != ''">
+            AND github_username LIKE CONCAT('%', #{githubUsername}, '%')
+        </if>
+        <if test="country != null and country != ''">
+            AND country = #{country}
+        </if>
+        <if test="language != null and language != ''">
+            AND github_id IN (
+            SELECT github_id
+            FROM projects
+            WHERE language = #{language}
+            )
+        </if>
+    </select>
+
+
+    <select id="findDevelopersByUsernameAndCountry" resultMap="DeveloperResultMap">
+        SELECT * FROM developers
+        WHERE 1=1
+        <if test="githubUsername != null and githubUsername != ''">
+            AND github_username LIKE CONCAT('%', #{githubUsername}, '%')
+        </if>
+        <if test="country != null and country != ''">
+            AND country = #{country}
+        </if>
+    </select>
+
+    <select id="getTopThreeLanguagesByDeveloper" resultType="String">
+        SELECT language, COUNT(*) AS language_count
+        FROM projects
+        WHERE github_id = #{githubId}
+        GROUP BY language
+        ORDER BY language_count DESC
+        LIMIT 3
+    </select>
+
+
+
+
+
 
 </mapper>

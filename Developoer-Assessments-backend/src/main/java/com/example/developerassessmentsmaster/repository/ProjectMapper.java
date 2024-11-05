@@ -12,4 +12,6 @@ public interface ProjectMapper {
     List<Project> getProjectsByCreatorId(Long creatorId);
 
     void insertProject(Project project);
+
+    List<String> getTopThreeLanguagesByDeveloper(Long githubId);
 }

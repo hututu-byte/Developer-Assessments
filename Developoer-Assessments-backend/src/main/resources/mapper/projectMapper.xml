@@ -26,4 +26,15 @@
         VALUES (#{githubId}, #{creatorId}, #{name}, #{stars}, #{forks}, #{description}, #{language}, #{createdAt}, #{updatedAt})
     </insert>
 
+    <!-- 查询开发者的前三种语言 -->
+    <select id="getTopThreeLanguagesByDeveloper" resultType="String">
+        SELECT language
+        FROM projects
+        WHERE github_id = #{githubId}
+        GROUP BY language
+        ORDER BY COUNT(*) DESC
+        LIMIT 3
+    </select>
+
+
 </mapper>
