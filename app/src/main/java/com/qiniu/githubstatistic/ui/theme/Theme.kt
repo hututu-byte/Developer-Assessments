@@ -96,13 +96,16 @@ private val LightColorScheme = lightColorScheme(
 data class CustomColorScheme(
     val colorScheme: ColorScheme,
     val tagColor: Color,
+    val tagColorSelected: Color,
     val onBackground: Color
 )
 
 // 定义 CompositionLocal
 val LocalCustomColors = compositionLocalOf {
     CustomColorScheme(
-        lightColorScheme(), TagColorLight,
+        lightColorScheme(),
+        TagColorLight,
+        TagColorLightSelected,
         OnBackgroundLight
     )
 }
@@ -116,11 +119,13 @@ fun GithubStatisticTheme(
 ) {
     val colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme()
     val tagColor = if (darkTheme) TagColorDark else TagColorLight
+    val tagColorSelected = if (darkTheme) TagColorDarkSelected else TagColorLightSelected
     val onBackground = if (darkTheme) OnBackgroundDark else OnBackgroundLight
 
     val extendedColors = CustomColorScheme(
         colorScheme = colorScheme,
         tagColor = tagColor,
+        tagColorSelected = tagColorSelected,
         onBackground = onBackground
     )
 

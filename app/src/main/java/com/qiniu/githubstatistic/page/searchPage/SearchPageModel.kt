@@ -16,11 +16,11 @@ sealed class SearchPageIntent{
 
     data object ChangeFocus:SearchPageIntent()
 
-    data object Search:SearchPageIntent()
+    data class Search(val country:List<String>,val tags:List<String>) : SearchPageIntent()
 
     data object ClearHistory:SearchPageIntent()
 
-    data object AddTags:SearchPageIntent()
+    data class AddTags(val tag:String):SearchPageIntent()
 
     data object AddCountryConstrain:SearchPageIntent()
 

@@ -29,6 +29,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     init {
         viewModelScope.launch {
             searchIntent.collect { intent ->
+                println(intent)
                 processIntent(intent)
             }
         }
@@ -48,19 +49,24 @@ class SearchViewModel @Inject constructor() : ViewModel() {
 
                 }
 
-                SearchPageIntent.AddTags -> {
-
+                is SearchPageIntent.AddTags -> {
+                    _searchState.value = _searchState.value.copy(
+                        usedTags = _searchState.value.usedTags + intent.tag
+                    )
                 }
 
                 SearchPageIntent.ChangeFocus -> {
-
+                    _searchState.value = _searchState.value.copy(
+                        isFocused = !_searchState.value.isFocused
+                    )
+                    println(_searchState.value)
                 }
 
                 SearchPageIntent.ClearHistory -> {
 
                 }
 
-                SearchPageIntent.Search -> {
+                is SearchPageIntent.Search -> {
 
                 }
             }

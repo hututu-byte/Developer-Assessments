@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(entities = [SearchHistory::class], version = 1)
+@TypeConverters(SearchHistoryConverter::class)
 abstract class SearchHistoryDatabase : RoomDatabase() {
     abstract fun searchHistoryDao(): SearchHistoryDao
 

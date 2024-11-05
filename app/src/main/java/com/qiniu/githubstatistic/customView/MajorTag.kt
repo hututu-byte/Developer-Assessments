@@ -1,11 +1,13 @@
 package com.qiniu.githubstatistic.customView
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,13 +20,14 @@ import com.qiniu.githubstatistic.ui.theme.GithubStatisticTheme
 import com.qiniu.githubstatistic.ui.theme.LocalCustomColors
 
 @Composable
-fun MajorTag(major:String) {
+fun MajorTag(major:String,isSelected:Boolean = false,select:()->Unit = {}){
     val customColors = LocalCustomColors.current
     Box(modifier = Modifier
         .padding(horizontal = 8.dp)
-        .height(24.dp)
+        .height(28.dp)
         .width(64.dp)
-        .background(color = customColors.tagColor, shape = RoundedCornerShape(8.dp))
+        .clickable { select()}
+        .background(color = if (!isSelected) customColors.tagColor else customColors.tagColorSelected, shape = RoundedCornerShape(8.dp))
         ){
         Text(
             text = major,

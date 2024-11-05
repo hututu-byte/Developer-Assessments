@@ -13,6 +13,9 @@ val Pink40 = Color(0xFF7D5260)
 val TagColorLight = Color(0xFFFFF5F5)
 val TagColorDark = Color(0xFF5B6080)
 
+val TagColorLightSelected = Color(0xFFCCF7AE)
+val TagColorDarkSelected = Color(0xFFC49266)
+
 val OnBackgroundLight = Color(0xFFFCFCFC)
 val OnBackgroundDark = Color(0xFF323232)
 
