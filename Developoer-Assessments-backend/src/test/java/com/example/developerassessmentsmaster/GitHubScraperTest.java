@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -28,7 +30,7 @@ public class GitHubScraperTest {
     @Test
     public void testFetchDevelopersAndSave() {
         try {
-            JSONArray developers = scraper.fetchDevelopers("java", 5);
+            JSONArray developers = scraper.fetchDevelopers("springboot", 30);
             assertNotNull(developers);
             assertTrue(developers.length() > 0);
 
@@ -39,9 +41,16 @@ public class GitHubScraperTest {
                 developer.setGithubUsername(devJson.getString("login"));
 
                 // Fetch additional details for developer
-                JSONObject details = scraper.fetchDeveloperDetails(developer.getGithubId());
-                developer.setCountry(details.optString("location", ""));
-                //TODO 需要添加计算talenntRank的方法
+                JSONObject details = scraper.fetchDeveloperDetails(developer.getGithubUsername());
+                String country = details.optString("location", "");
+
+                // 如果国家信息缺失，尝试使用推测的逻辑
+                if (country == null || country.isEmpty()) {
+                    // 使用语言等其他信息推测
+                    country = scraper.guessCountry(details, Arrays.asList("java", "python")); // 假设使用一些项目语言进行推测
+                }
+
+                developer.setCountry(country);
                 developer.setTalentRank(TalentRank.LOW); // 假设初始为 LOW，可以根据实际情况调整
                 developer.setBio(details.optString("bio", ""));
                 developer.setFollowing(details.optInt("following", 0));
