@@ -11,14 +11,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,18 +32,49 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.qiniu.githubstatistic.R
 import com.qiniu.githubstatistic.customView.MajorTag
+import com.qiniu.githubstatistic.model.UserDetail
 
 @Composable
 fun HomePage(homePageViewModel: HomePageViewModel = hiltViewModel()) {
     val state by homePageViewModel.homeState.collectAsState()
-    LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).statusBarsPadding()) {
-        items(4) {
-            PersonalJudgeCard()
+    val lazyListState = rememberLazyListState()
+
+    // 下拉刷新功能
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(state.refreshing),
+        onRefresh = {
+            homePageViewModel.sendIntent(HomeIntent.Refresh)
+        },
+        modifier = Modifier.statusBarsPadding(),
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = lazyListState
+        ) {
+            items(state.userList.size) {
+                PersonalJudgeCard(state.userList[it])
+            }
         }
     }
+
+    // 上拉加载更多功能
+    LaunchedEffect(lazyListState) {
+        snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { index ->
+                if (index == state.userList.lastIndex) {
+                    // Call your load more logic here, e.g., viewModel.loadMoreData()
+//                    homePageViewModel.loadMoreData()
+                }
+            }
+    }
 }
+
 
 @Composable
 @Preview
@@ -47,8 +83,7 @@ fun HomePagePreview() {
 }
 
 @Composable
-@Preview
-fun PersonalJudgeCard() {
+fun PersonalJudgeCard(userDetail: UserDetail) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,9 +102,9 @@ fun PersonalJudgeCard() {
                 )
 
                 Column(modifier = Modifier.padding(start = 16.dp)) {
-                    Text(text = "Mr Liu", style = MaterialTheme.typography.bodyLarge, fontSize = 24.sp)
+                    Text(text = userDetail.githubUsername, style = MaterialTheme.typography.bodyLarge, fontSize = 24.sp)
                     Text(
-                        text = "From: China",
+                        text = "From: ${userDetail.country}",
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 18.sp
                     )
@@ -82,13 +117,13 @@ fun PersonalJudgeCard() {
                     modifier = Modifier.padding(end = 8.dp).size(36.dp).align(Alignment.CenterVertically)
                 )
 
-                Text("High", style = MaterialTheme.typography.bodyMedium, fontSize = 18.sp, color = Color.Black, modifier = Modifier.align(Alignment.CenterVertically))
+                Text(userDetail.talentRank, style = MaterialTheme.typography.bodyMedium, fontSize = 18.sp, color = Color.Black, modifier = Modifier.align(Alignment.CenterVertically))
 
 
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "I am a software engineer, I am good at Java, Kotlin, Python, and so on.",
+                text = userDetail.bio,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 18.sp,
                 maxLines = 3,
@@ -97,8 +132,11 @@ fun PersonalJudgeCard() {
             )
 
             Row {
-                MajorTag("Android")
-                MajorTag("Android")
+                if (userDetail.mostCommonTag.isNotEmpty()) {
+                    userDetail.mostCommonTag.split(",").forEach {
+                        MajorTag(it)
+                    }
+                }
 
             }
         }

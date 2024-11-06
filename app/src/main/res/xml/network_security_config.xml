@@ -1,0 +1,6 @@
+<!-- network_security_config.xml -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.33.23.144</domain>
+    </domain-config>
+</network-security-config>

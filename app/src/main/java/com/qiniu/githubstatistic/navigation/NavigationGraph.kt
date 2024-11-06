@@ -81,7 +81,7 @@ fun NavigationGraph(
                     navHostController.navigate(Screen.HomePage.route) {
                         popUpTo(Screen.HomePage.route) {
                             select = 0
-                            inclusive = true
+                            inclusive = false
                         }
                     }
                 }

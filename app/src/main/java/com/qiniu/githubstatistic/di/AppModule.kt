@@ -4,6 +4,7 @@ import android.content.Context
 import com.coder.vincent.sharp_retrofit.call_adapter.flow.FlowCallAdapterFactory
 import com.qiniu.githubstatistic.database.seachHistory.SearchHistoryDao
 import com.qiniu.githubstatistic.database.seachHistory.SearchHistoryDatabase
+import com.qiniu.githubstatistic.service.HomeService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +25,7 @@ object AppModule {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private const val URL = ""
+    private const val URL = "http://10.70.143.129:8080"
 
     @Singleton
     @Provides
@@ -46,6 +47,12 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(FlowCallAdapterFactory.create())
             .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideHomeService(retrofit: Retrofit): HomeService {
+        return retrofit.create(HomeService::class.java)
     }
 
     @Singleton

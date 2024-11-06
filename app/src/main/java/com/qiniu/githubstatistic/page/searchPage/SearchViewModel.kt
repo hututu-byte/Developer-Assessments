@@ -69,8 +69,13 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 is SearchPageIntent.Search -> {
 
                 }
+
+                SearchPageIntent.ChooseCountry -> {
+                    _searchState.value = _searchState.value.copy(
+                        chooseCountry = !_searchState.value.chooseCountry
+                    )
+                }
             }
         }
     }
-
 }
