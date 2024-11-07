@@ -214,7 +214,9 @@ fun SearchPage(navHostController: NavHostController,viewModel: SearchViewModel =
 
                     IconButton(onClick = {
                         keyboardController?.hide()
-                        navHostController.navigate(Screen.SearchResultPage.route + "/${viewModel.getSearchKey()}")
+                        val searchKey = viewModel.getSearchKey()
+                        viewModel.sendIntent(SearchPageIntent.Search)
+                        navHostController.navigate(Screen.SearchResultPage.route + "/${searchKey}")
                     }, enabled = state.isFocused, modifier = Modifier.padding(start = 8.dp)) {
                         Icon(
                             painter = painterResource(R.drawable.search),
