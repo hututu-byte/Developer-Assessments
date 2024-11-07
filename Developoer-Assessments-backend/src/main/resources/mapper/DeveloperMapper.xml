@@ -87,7 +87,7 @@
             AND github_username LIKE CONCAT('%', #{githubUsername}, '%')
         </if>
         <if test="country != null and country != ''">
-            AND country = #{country}
+            AND country LIKE CONCAT('%', #{country}, '%')
         </if>
     </select>
 

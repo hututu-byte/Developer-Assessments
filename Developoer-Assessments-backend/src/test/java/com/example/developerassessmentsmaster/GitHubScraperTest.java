@@ -30,7 +30,7 @@ public class GitHubScraperTest {
     @Test
     public void testFetchDevelopersAndSave() {
         try {
-            JSONArray developers = scraper.fetchDevelopers("springboot", 30);
+            JSONArray developers = scraper.fetchDevelopers("spring", 10);
             assertNotNull(developers);
             assertTrue(developers.length() > 0);
 
