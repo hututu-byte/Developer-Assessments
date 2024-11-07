@@ -3,6 +3,7 @@ package com.qiniu.githubstatistic.page.searchResultPage
 import com.qiniu.githubstatistic.model.UserDetail
 
 data class SearchResultState (
+    val hasSearched:Boolean = false,
     val userList: List<UserDetail> = emptyList(),
     val isSearching : Boolean = true,
     val isAnimVisible : Boolean = true,
@@ -15,4 +16,5 @@ sealed class SearchResultIntent {
     data class Search(val searchKey: String) : SearchResultIntent()
     data object DismissDialog : SearchResultIntent()
     data object CancelAnimation: SearchResultIntent()
+    data class RetrySearch(val searchKey: String): SearchResultIntent()
 }

@@ -18,10 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +50,7 @@ import androidx.navigation.NavHostController
 import com.qiniu.githubstatistic.R
 import com.qiniu.githubstatistic.customView.MajorTag
 import com.qiniu.githubstatistic.navigation.Screen
+import com.qiniu.githubstatistic.page.homePage.HomeIntent
 
 @Composable
 fun SearchPage(navHostController: NavHostController,viewModel: SearchViewModel = hiltViewModel()) {
@@ -80,6 +83,50 @@ fun SearchPage(navHostController: NavHostController,viewModel: SearchViewModel =
     var currentMessage by remember { mutableStateOf(TextFieldValue("")) }
     val keyboardController = LocalSoftwareKeyboardController.current //键盘
     val state by viewModel.searchState.collectAsState()
+    if (state.chooseCountry) {
+        AlertDialog(
+            onDismissRequest = { viewModel.sendIntent(SearchPageIntent.DismissDialog) },
+            title = { Text("Choose a country") },
+            text = {
+                // 使用 LazyColumn 列出国家选择项
+                LazyColumn(Modifier.height(300.dp)) {
+                    items(state.countryList.size) { index ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.sendIntent(SearchPageIntent.AddCountryConstrain(state.countryList[index]))
+                                    viewModel.sendIntent(SearchPageIntent.DismissDialog)
+                                }
+                                .padding(8.dp)
+                        ) {
+                            Text(text = state.countryList[index], fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterVertically), style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+            },
+            dismissButton = {
+                Text(
+                    text = "Cancel",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            viewModel.sendIntent(SearchPageIntent.DismissDialog)
+                        }
+                )
+            },
+            confirmButton = {
+                Text(
+                    text = "Confirm",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            viewModel.sendIntent(SearchPageIntent.DismissDialog)
+                        }
+                )
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -122,7 +169,7 @@ fun SearchPage(navHostController: NavHostController,viewModel: SearchViewModel =
                         .align(Alignment.CenterHorizontally)
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {viewModel.sendIntent(SearchPageIntent.ChooseCountry) }, enabled = state.isFocused) {
                         Icon(
                             painter = painterResource(R.drawable.nation_search),
                             contentDescription = "nation_search",

@@ -45,7 +45,6 @@ class SearchResultViewModel @Inject constructor(private val searchService: Searc
             when (intent) {
                 is SearchResultIntent.Search -> {
                     val searchKey = Json.decodeFromString(SearchKey.serializer(), intent.searchKey)
-                    println(searchKey)
                     withContext(Dispatchers.IO){
                         try {
                             val list = searchService.searchDevelopers(
@@ -54,6 +53,7 @@ class SearchResultViewModel @Inject constructor(private val searchService: Searc
                                 country = searchKey.limitCountries
                             ).data
                             _searchResultPageState.value = _searchResultPageState.value.copy(
+                                hasSearched = true,
                                 isSearching = false
                             )
                             kotlinx.coroutines.delay(800)
@@ -77,6 +77,38 @@ class SearchResultViewModel @Inject constructor(private val searchService: Searc
 
                 SearchResultIntent.CancelAnimation -> {
                     _searchResultPageState.value = _searchResultPageState.value.copy(isAnimVisible = false)
+                }
+
+                is SearchResultIntent.RetrySearch -> {
+                    _searchResultPageState.value = _searchResultPageState.value.copy(
+                        hasSearched = false,
+                        isSearching = true,
+                        isAnimVisible = true
+                    )
+                    val searchKey = Json.decodeFromString(SearchKey.serializer(), intent.searchKey)
+                    withContext(Dispatchers.IO){
+                        try {
+                            val list = searchService.searchDevelopers(
+                                searchKey.searchContent,
+                                language = searchKey.usedTags,
+                                country = searchKey.limitCountries
+                            ).data
+                            _searchResultPageState.value = _searchResultPageState.value.copy(
+                                hasSearched = true,
+                                isSearching = false
+                            )
+                            kotlinx.coroutines.delay(800)
+                            _searchResultPageState.value = _searchResultPageState.value.copy(
+                                userList = list
+                            )
+                        }catch (e:Exception){
+                            _searchResultPageState.value = _searchResultPageState.value.copy(
+                                isSearching = false,
+                                error = "搜索失败",
+                                showDialog = true
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -18,15 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor() : ViewModel() {
-    private val _searchState = MutableStateFlow(
-        SearchPageState(
-            isFocused = false,
-            searchContent = "",
-            searchHistory = emptyList(),
-            limitCountries = "",
-            usedTags = emptyList()
-        )
-    )
+    private val _searchState = MutableStateFlow(SearchPageState())
     val searchState = _searchState.asStateFlow()
 
     private val _searchIntent = MutableSharedFlow<SearchPageIntent>()
@@ -62,8 +54,10 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     private fun processIntent(intent: SearchPageIntent) {
         viewModelScope.launch {
             when (intent) {
-                SearchPageIntent.AddCountryConstrain -> {
-
+                is SearchPageIntent.AddCountryConstrain -> {
+                    _searchState.value = _searchState.value.copy(
+                        limitCountries = intent.contry
+                    )
                 }
 
                 is SearchPageIntent.AddTags -> {
@@ -91,8 +85,18 @@ class SearchViewModel @Inject constructor() : ViewModel() {
 
                 SearchPageIntent.ChooseCountry -> {
                     _searchState.value = _searchState.value.copy(
-                        chooseCountry = !_searchState.value.chooseCountry
+                        chooseCountry = true
                     )
+                }
+
+                SearchPageIntent.DismissDialog -> {
+                    _searchState.value = _searchState.value.copy(
+                        chooseCountry = false
+                    )
+                }
+
+                SearchPageIntent.Search -> {
+                    _searchState.value = SearchPageState()
                 }
             }
         }
