@@ -39,14 +39,15 @@ class HomePageViewModel @Inject constructor(private val homeService: HomeService
     private fun processIntent(intent: HomeIntent) {
         viewModelScope.launch {
             when(intent) {
+                //刷新
                 HomeIntent.Refresh -> {
                     withContext(Dispatchers.IO){
                         try {
                             // 处理意图并更新状态
                             _homeState.value = _homeState.value.copy(refreshing = true)
                             val newList = homeService.getRandomUsers()
-                            val list = _homeState.value.userList.toMutableList().addAndReturn(newList.data)
-                            _homeState.value = _homeState.value.copy(userList = list, refreshing = false)
+//                            val list = _homeState.value.userList.toMutableList().addAndReturn(newList.data)
+                            _homeState.value = _homeState.value.copy(userList = newList.data, refreshing = false)
                             println(_homeState.value)
                         }catch (e:Exception){
                             Log.e("TAG", "processIntent: $e" )
@@ -55,10 +56,24 @@ class HomePageViewModel @Inject constructor(private val homeService: HomeService
 
                     }
                 }
-
+                // 加载更多
                 HomeIntent.Loading -> {
-
+                    withContext(Dispatchers.IO){
+                        try {
+                            // 处理意图并更新状态
+                            _homeState.value = _homeState.value.copy(loading = true)
+                            val newList = homeService.getRandomUsers()
+                            val list = _homeState.value.userList.toMutableList().addAndReturn(newList.data)
+                            Log.e("TAG", "processIntent: ${list.size}")
+                            _homeState.value = _homeState.value.copy(userList = list, loading = false)
+                        }catch (e:Exception){
+                            Log.e("TAG", "processIntent: $e" )
+                            _homeState.value = _homeState.value.copy(error = e.message?:"")
+                        }
+                    }
                 }
+
+
             }
         }
     }

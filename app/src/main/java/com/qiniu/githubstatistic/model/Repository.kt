@@ -7,5 +7,5 @@ data class Repository(
     val repositoryName:String,
     val description:String,
     val stars:Int,
-    val forks:Int
+    val language:String
 )

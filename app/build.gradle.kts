@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.coil.gif)
     //accompanist
     implementation(libs.accompanist.permissions)
+    implementation (libs.accompanist.systemuicontroller)
     implementation (libs.accompanist.swiperefresh)
 
 

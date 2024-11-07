@@ -1,6 +1,8 @@
 package com.qiniu.githubstatistic.page.homePage
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
@@ -32,14 +35,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.qiniu.githubstatistic.R
 import com.qiniu.githubstatistic.customView.MajorTag
 import com.qiniu.githubstatistic.model.UserDetail
+import com.qiniu.githubstatistic.navigation.Screen
+import kotlinx.serialization.json.Json
 
 @Composable
-fun HomePage(homePageViewModel: HomePageViewModel = hiltViewModel()) {
+fun HomePage(navHostController: NavHostController,homePageViewModel: HomePageViewModel = hiltViewModel()) {
     val state by homePageViewModel.homeState.collectAsState()
     val lazyListState = rememberLazyListState()
 
@@ -58,42 +64,45 @@ fun HomePage(homePageViewModel: HomePageViewModel = hiltViewModel()) {
             state = lazyListState
         ) {
             items(state.userList.size) {
-                PersonalJudgeCard(state.userList[it])
+                PersonalJudgeCard(state.userList[it]){
+                    val userDetail = Json.encodeToString(UserDetail.serializer(),state.userList[it])
+                    navHostController.navigate(Screen.UserDetailedPage.route + "/${userDetail}")
+                }
             }
         }
     }
 
-    // 上拉加载更多功能
     LaunchedEffect(lazyListState) {
-        snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .collect { index ->
-                if (index == state.userList.lastIndex) {
-                    // Call your load more logic here, e.g., viewModel.loadMoreData()
-//                    homePageViewModel.loadMoreData()
+        snapshotFlow { lazyListState.layoutInfo }
+            .collect { layoutInfo ->
+                val visibleItems = layoutInfo.visibleItemsInfo
+                if (visibleItems.isNotEmpty()) {
+                    val lastVisibleItemIndex = visibleItems.last().index
+                    val totalItems = state.userList.size
+                    // 检查是否接近列表底部
+                    if (lastVisibleItemIndex == totalItems - 1) {
+                        homePageViewModel.sendIntent(HomeIntent.Loading)
+                    }
                 }
             }
     }
 }
 
-
 @Composable
-@Preview
-fun HomePagePreview() {
-    HomePage()
-}
-
-@Composable
-fun PersonalJudgeCard(userDetail: UserDetail) {
+fun PersonalJudgeCard(userDetail: UserDetail,more:()->Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp)
-            .height(200.dp)
-            .background(MaterialTheme.colorScheme.surface),
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .wrapContentHeight()
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { more() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Row (Modifier.fillMaxWidth()){
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)) {
+            Row(Modifier.fillMaxWidth()) {
                 Icon(
                     painter = painterResource(R.drawable.alienavatar),
                     contentDescription = null,
@@ -102,43 +111,57 @@ fun PersonalJudgeCard(userDetail: UserDetail) {
                 )
 
                 Column(modifier = Modifier.padding(start = 16.dp)) {
-                    Text(text = userDetail.githubUsername, style = MaterialTheme.typography.bodyLarge, fontSize = 24.sp)
+                    Text(
+                        text = userDetail.githubUsername,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 24.sp
+                    )
                     Text(
                         text = "From: ${userDetail.country}",
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 18.sp
                     )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    painter = painterResource(R.drawable.level),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier.padding(end = 8.dp).size(36.dp).align(Alignment.CenterVertically)
-                )
-
-                Text(userDetail.talentRank, style = MaterialTheme.typography.bodyMedium, fontSize = 18.sp, color = Color.Black, modifier = Modifier.align(Alignment.CenterVertically))
-
 
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = userDetail.bio,
+                text = if (userDetail.bio == "null") "The man is lazy,there is no bio" else userDetail.bio,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 18.sp,
                 maxLines = 3,
                 color = Color.Gray,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
-
             Row {
                 if (userDetail.mostCommonTag.isNotEmpty()) {
                     userDetail.mostCommonTag.split(",").forEach {
-                        MajorTag(it)
+                        if (!it.contains("null"))
+                            MajorTag(it)
                     }
                 }
-
             }
+
+            Row (modifier = Modifier.padding(top = 8.dp)){
+                Icon(
+                    painter = painterResource(R.drawable.level),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size(36.dp)
+                        .align(Alignment.CenterVertically)
+                )
+
+                Text(
+                    userDetail.talentRank,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 18.sp,
+                    color = Color.Black,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+
         }
     }
 }

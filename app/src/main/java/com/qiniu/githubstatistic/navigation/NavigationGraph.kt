@@ -1,5 +1,6 @@
 package com.qiniu.githubstatistic.navigation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,8 +28,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.qiniu.githubstatistic.R
 import com.qiniu.githubstatistic.page.homePage.HomePage
 import com.qiniu.githubstatistic.page.searchPage.SearchPage
@@ -41,7 +45,7 @@ fun NavigationGraph(
     startDestination: String = Screen.HomePage.route,
 ){
     var select by remember {  mutableIntStateOf(0) }
-    var isNavBarVis by remember { mutableStateOf(false) }
+    var isNavBarVis by remember { mutableStateOf(true) }
 //    LaunchedEffect(navHostController.currentDestination?.route) {
 //        println( navHostController.currentDestination?.route)
 //        when(navHostController.currentDestination?.route){
@@ -49,13 +53,26 @@ fun NavigationGraph(
 //            Screen.SearchPage.route -> select = 1
 //        }
 //    }
+    val backstackEntry = navHostController.currentBackStackEntryAsState()
+    LaunchedEffect(backstackEntry.value) {
+        isNavBarVis = backstackEntry.value?.destination?.route != Screen.UserDetailedPage.route + "/{userDetail}"
+        if (backstackEntry.value?.destination?.route == Screen.HomePage.route) {
+            select = 0
+        } else if (backstackEntry.value?.destination?.route == Screen.SearchPage.route) {
+            select = 1
+        }
+    }
     Column(modifier = Modifier.fillMaxSize()) {
         NavHost(navController = navHostController, startDestination = startDestination,modifier = Modifier.weight(1f)){
-            composable(Screen.HomePage.route){
-                HomePage()
+            composable(
+                route = Screen.HomePage.route
+            ){
+                HomePage(navHostController)
             }
-            composable(Screen.UserDetailedPage.route){
-                UserDetailedPage()
+            composable(Screen.UserDetailedPage.route + "/{userDetail}",
+                arguments = listOf(navArgument("userDetail") { type = NavType.StringType })){
+                val userDetail = it.arguments?.getString("userDetail")?:""
+                UserDetailedPage(userDetail = userDetail,navHostController = navHostController)
             }
             composable(Screen.SearchPage.route){
                 SearchPage()
@@ -72,50 +89,51 @@ fun NavigationGraph(
 //            ChatPage(navHostController, model,chatId)
 //        }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth().navigationBarsPadding(),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Column(modifier = Modifier.padding(vertical = 4.dp).clickable {
-                if (select != 0) {
-                    navHostController.navigate(Screen.HomePage.route) {
-                        popUpTo(Screen.HomePage.route) {
-                            select = 0
-                            inclusive = false
+        AnimatedVisibility(isNavBarVis) {
+            Row(
+                modifier = Modifier.fillMaxWidth().navigationBarsPadding(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Column(modifier = Modifier.padding(vertical = 4.dp).clickable {
+                    if (select != 0) {
+                        navHostController.navigate(Screen.HomePage.route) {
+                            popUpTo(Screen.HomePage.route) {
+                                inclusive = false
+                            }
                         }
                     }
+                }) {
+                    Icon(
+                        painterResource(id = if (select == 0) R.drawable.home_fill else R.drawable.home),
+                        contentDescription = "Previous Level",
+                        modifier = Modifier
+                            .size(28.dp).align(Alignment.CenterHorizontally),
+                        tint = Color.Unspecified
+                    )
+                    Text(text = "首页", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
                 }
-            }) {
-                Icon(
-                    painterResource(id = if (select == 0) R.drawable.home_fill else R.drawable.home),
-                    contentDescription = "Previous Level",
-                    modifier = Modifier
-                        .size(28.dp).align(Alignment.CenterHorizontally),
-                    tint = Color.Unspecified
-                )
-                Text(text = "首页", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
-            }
-            Column(modifier = Modifier.padding(vertical = 4.dp).clickable {
-                if (select != 1) {
-                    select = 1
-                    navHostController.navigate(Screen.SearchPage.route) {
-                        popUpTo(Screen.SearchPage.route) {
-                            inclusive = true
+                Column(modifier = Modifier.padding(vertical = 4.dp).clickable {
+                    if (select != 1) {
+                        navHostController.navigate(Screen.SearchPage.route) {
+                            popUpTo(Screen.SearchPage.route) {
+                                inclusive = true
+                            }
                         }
                     }
+                }) {
+                    Icon(
+                        painterResource(id = if (select == 1) R.drawable.search_filled else R.drawable.search_outline),
+                        contentDescription = "我的",
+                        modifier = Modifier
+                            .size(28.dp)
+                            .align(Alignment.CenterHorizontally),
+                        tint = Color.Unspecified
+                    )
+                    Text(text = "搜索", fontSize = 16.sp,modifier = Modifier.align(Alignment.CenterHorizontally))
                 }
-            }) {
-                Icon(
-                    painterResource(id = if (select == 1) R.drawable.search_filled else R.drawable.search_outline),
-                    contentDescription = "我的",
-                    modifier = Modifier
-                        .size(28.dp)
-                        .align(Alignment.CenterHorizontally),
-                    tint = Color.Unspecified
-                )
-                Text(text = "搜索", fontSize = 16.sp,modifier = Modifier.align(Alignment.CenterHorizontally))
             }
         }
+
     }
 
 }

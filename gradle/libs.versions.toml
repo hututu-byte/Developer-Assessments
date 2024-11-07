@@ -1,5 +1,6 @@
 [versions]
 accompanistSwiperefresh = "0.24.13-rc"
+accompanistSystemuicontroller = "0.31.0-alpha"
 agp = "8.5.1"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
@@ -22,6 +23,7 @@ hiltNavigationCompose = "1.2.0"
 
 [libraries]
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
+accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

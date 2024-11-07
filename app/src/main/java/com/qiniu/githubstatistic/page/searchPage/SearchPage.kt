@@ -190,7 +190,7 @@ fun SearchPage(viewModel: SearchViewModel = hiltViewModel()) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(tags.size) { index ->
-                            MajorTag(tags[index].first, isSelected = tags[index].second, select = {
+                            MajorTag(tags[index].first, isSelected = tags[index].second, canSelect = true, select = {
                                 tags[index] = Pair(tags[index].first, !tags[index].second)
                                 viewModel.sendIntent(SearchPageIntent.AddTags(tags[index].first))
                             })
