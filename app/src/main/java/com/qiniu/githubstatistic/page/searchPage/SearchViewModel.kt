@@ -1,13 +1,19 @@
 package com.qiniu.githubstatistic.page.searchPage
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qiniu.githubstatistic.model.SearchKey
+import com.qiniu.githubstatistic.service.SearchService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,7 +23,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             isFocused = false,
             searchContent = "",
             searchHistory = emptyList(),
-            limitCountries = emptyList(),
+            limitCountries = "",
             usedTags = emptyList()
         )
     )
@@ -42,6 +48,17 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun getSearchKey():String
+    {
+        val searchKey = SearchKey(
+            searchContent = searchState.value.searchContent,
+            searchHistory = searchState.value.searchHistory,
+            limitCountries = searchState.value.limitCountries,
+            usedTags = searchState.value.usedTags
+        )
+        return Json.encodeToString(SearchKey.serializer(), searchKey)
+    }
+
     private fun processIntent(intent: SearchPageIntent) {
         viewModelScope.launch {
             when (intent) {
@@ -50,9 +67,15 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 }
 
                 is SearchPageIntent.AddTags -> {
-                    _searchState.value = _searchState.value.copy(
-                        usedTags = _searchState.value.usedTags + intent.tag
-                    )
+                    if (intent.add) {
+                        _searchState.value = _searchState.value.copy(
+                            usedTags = _searchState.value.usedTags + intent.tag
+                        )
+                    }else{
+                        _searchState.value = _searchState.value.copy(
+                            usedTags = _searchState.value.usedTags - intent.tag
+                        )
+                    }
                 }
 
                 SearchPageIntent.ChangeFocus -> {
@@ -63,10 +86,6 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 }
 
                 SearchPageIntent.ClearHistory -> {
-
-                }
-
-                is SearchPageIntent.Search -> {
 
                 }
 

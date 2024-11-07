@@ -3,6 +3,7 @@ package com.qiniu.githubstatistic.customView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -17,20 +18,43 @@ import androidx.compose.ui.unit.dp
 import com.qiniu.githubstatistic.ui.theme.LocalCustomColors
 
 @Composable
-fun MajorTag(major:String,isSelected:Boolean = false,canSelect:Boolean = false,select:()->Unit = {}){
+fun MajorTag(
+    major: String,
+    isSelected: Boolean = false,
+    canSelect: Boolean = false,
+    select: () -> Unit = {},
+    select3: Boolean = false
+) {
     val customColors = LocalCustomColors.current
-    var tagModifier = if (major.length > 7 && !canSelect) Modifier.padding(horizontal = 8.dp).wrapContentWidth().height(28.dp) else Modifier.padding(horizontal = 8.dp).width(76.dp).height(28.dp)
-    if (canSelect)
+    var tagModifier =
+        if (major.length > 7 && !canSelect) Modifier
+            .padding(horizontal = 8.dp)
+            .wrapContentWidth()
+            .height(28.dp)
+        else if (!canSelect) Modifier
+            .padding(horizontal = 8.dp)
+            .width(76.dp)
+            .height(28.dp)
+        else Modifier
+            .fillMaxWidth()
+            .height(28.dp)
+    if (canSelect && !select3 || isSelected)
         tagModifier = tagModifier.clickable { select() }
-    Box(Modifier.padding(horizontal = 8.dp).background(
-        color = if (!isSelected) customColors.tagColor else customColors.tagColorSelected,
-        shape = RoundedCornerShape(8.dp)
-    )) {
-        Box(modifier = tagModifier
+    Box(
+        Modifier
+            .padding(horizontal = 8.dp)
             .background(
                 color = if (!isSelected) customColors.tagColor else customColors.tagColorSelected,
                 shape = RoundedCornerShape(8.dp)
-            ).align(Alignment.Center)
+            )
+    ) {
+        Box(
+            modifier = tagModifier
+                .background(
+                    color = if (!isSelected) customColors.tagColor else customColors.tagColorSelected,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .align(Alignment.Center)
         ) {
             Text(
                 text = major,

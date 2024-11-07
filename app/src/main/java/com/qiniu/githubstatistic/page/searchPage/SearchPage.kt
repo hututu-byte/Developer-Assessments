@@ -44,11 +44,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.qiniu.githubstatistic.R
 import com.qiniu.githubstatistic.customView.MajorTag
+import com.qiniu.githubstatistic.navigation.Screen
 
 @Composable
-fun SearchPage(viewModel: SearchViewModel = hiltViewModel()) {
+fun SearchPage(navHostController: NavHostController,viewModel: SearchViewModel = hiltViewModel()) {
     val tags = remember {mutableStateListOf(
         Pair("java",false),
         Pair("kotlin",false),
@@ -165,13 +167,8 @@ fun SearchPage(viewModel: SearchViewModel = hiltViewModel()) {
 
                     IconButton(onClick = {
                         keyboardController?.hide()
-                        viewModel.sendIntent(
-                            SearchPageIntent.Search(
-                                state.limitCountries,
-                                state.usedTags
-                            )
-                        )
-                    }, modifier = Modifier.padding(start = 8.dp)) {
+                        navHostController.navigate(Screen.SearchResultPage.route + "/${viewModel.getSearchKey()}")
+                    }, enabled = state.isFocused, modifier = Modifier.padding(start = 8.dp)) {
                         Icon(
                             painter = painterResource(R.drawable.search),
                             contentDescription = "search"
@@ -190,9 +187,9 @@ fun SearchPage(viewModel: SearchViewModel = hiltViewModel()) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(tags.size) { index ->
-                            MajorTag(tags[index].first, isSelected = tags[index].second, canSelect = true, select = {
+                            MajorTag(tags[index].first, isSelected = tags[index].second, canSelect = true, select3 = state.usedTags.size >= 3, select = {
                                 tags[index] = Pair(tags[index].first, !tags[index].second)
-                                viewModel.sendIntent(SearchPageIntent.AddTags(tags[index].first))
+                                viewModel.sendIntent(SearchPageIntent.AddTags(tags[index].first, tags[index].second))
                             })
                         }
                     }

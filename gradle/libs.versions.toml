@@ -2,6 +2,7 @@
 accompanistSwiperefresh = "0.24.13-rc"
 accompanistSystemuicontroller = "0.31.0-alpha"
 agp = "8.5.1"
+composewaveloading = "0.1.4"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -25,6 +26,7 @@ hiltNavigationCompose = "1.2.0"
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+composewaveloading = { module = "com.github.vitaviva:ComposeWaveLoading", version.ref = "composewaveloading" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

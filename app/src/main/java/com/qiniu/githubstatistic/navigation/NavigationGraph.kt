@@ -37,6 +37,7 @@ import androidx.navigation.navArgument
 import com.qiniu.githubstatistic.R
 import com.qiniu.githubstatistic.page.homePage.HomePage
 import com.qiniu.githubstatistic.page.searchPage.SearchPage
+import com.qiniu.githubstatistic.page.searchResultPage.SearchResultsPage
 import com.qiniu.githubstatistic.page.userDetailedPage.UserDetailedPage
 
 @Composable
@@ -44,8 +45,8 @@ fun NavigationGraph(
     navHostController: NavHostController,
     innerPaddingValues: PaddingValues,
     startDestination: String = Screen.HomePage.route,
-){
-    var select by remember {  mutableIntStateOf(0) }
+) {
+    var select by remember { mutableIntStateOf(0) }
     var isNavBarVis by remember { mutableStateOf(true) }
 //    LaunchedEffect(navHostController.currentDestination?.route) {
 //        println( navHostController.currentDestination?.route)
@@ -56,7 +57,8 @@ fun NavigationGraph(
 //    }
     val backstackEntry = navHostController.currentBackStackEntryAsState()
     LaunchedEffect(backstackEntry.value) {
-        isNavBarVis = backstackEntry.value?.destination?.route != Screen.UserDetailedPage.route + "/{userDetail}"
+        isNavBarVis =
+            backstackEntry.value?.destination?.route != Screen.UserDetailedPage.route + "/{userDetail}" && backstackEntry.value?.destination?.route != Screen.SearchResultPage.route + "/{searchKey}"
         if (backstackEntry.value?.destination?.route == Screen.HomePage.route) {
             select = 0
         } else if (backstackEntry.value?.destination?.route == Screen.SearchPage.route) {
@@ -64,31 +66,33 @@ fun NavigationGraph(
         }
     }
     Column(modifier = Modifier.fillMaxSize()) {
-        NavHost(navController = navHostController, startDestination = startDestination,modifier = Modifier.weight(1f)){
+        NavHost(
+            navController = navHostController,
+            startDestination = startDestination,
+            modifier = Modifier.weight(1f)
+        ) {
             composable(
                 route = Screen.HomePage.route
-            ){
+            ) {
                 HomePage(navHostController)
             }
-            composable(Screen.UserDetailedPage.route + "/{userDetail}",
-                arguments = listOf(navArgument("userDetail") { type = NavType.StringType })){
-                val userDetail = it.arguments?.getString("userDetail")?:""
-                UserDetailedPage(userDetail = userDetail,navHostController = navHostController)
+            composable(
+                Screen.UserDetailedPage.route + "/{userDetail}",
+                arguments = listOf(navArgument("userDetail") { type = NavType.StringType })
+            ) {
+                val userDetail = it.arguments?.getString("userDetail") ?: ""
+                UserDetailedPage(userDetail = userDetail, navHostController = navHostController)
             }
-            composable(Screen.SearchPage.route){
-                SearchPage()
+            composable(Screen.SearchPage.route) {
+                SearchPage(navHostController)
             }
-//        composable(Screen.ModelPage.route){
-//            ModelPage(navHostController)
-//        }
-//        composable(
-//            route = Screen.ChatPage.route + "/{model}" + "/{id}",
-//            arguments = listOf(navArgument("model") { type = NavType.StringType }, navArgument("id"){type = NavType.IntType})
-//        ) {
-//            val model = it.arguments?.getString("model") ?: "GPT-4o"
-//            val chatId = it.arguments?.getInt("id")?:0
-//            ChatPage(navHostController, model,chatId)
-//        }
+            composable(
+                route = Screen.SearchResultPage.route + "/{searchKey}",
+                arguments = listOf(navArgument("searchKey") { type = NavType.StringType })
+            ) {
+                val searchKey = it.arguments?.getString("searchKey") ?: ""
+                SearchResultsPage(searchKey = searchKey, navHostController = navHostController)
+            }
         }
         AnimatedVisibility(isNavBarVis) {
             Row(
@@ -101,11 +105,7 @@ fun NavigationGraph(
                     .padding(vertical = 4.dp)
                     .clickable {
                         if (select != 0) {
-                            navHostController.navigate(Screen.HomePage.route) {
-                                popUpTo(Screen.HomePage.route) {
-                                    inclusive = false
-                                }
-                            }
+                            navHostController.popBackStack()
                         }
                     }) {
                     Icon(
@@ -116,17 +116,17 @@ fun NavigationGraph(
                             .align(Alignment.CenterHorizontally),
                         tint = Color.Unspecified
                     )
-                    Text(text = "首页", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text(
+                        text = "首页",
+                        fontSize = 16.sp,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
                 }
                 Column(modifier = Modifier
                     .padding(vertical = 4.dp)
                     .clickable {
                         if (select != 1) {
-                            navHostController.navigate(Screen.SearchPage.route) {
-                                popUpTo(Screen.SearchPage.route) {
-                                    inclusive = true
-                                }
-                            }
+                            navHostController.navigate(Screen.SearchPage.route)
                         }
                     }) {
                     Icon(
@@ -137,7 +137,11 @@ fun NavigationGraph(
                             .align(Alignment.CenterHorizontally),
                         tint = Color.Unspecified
                     )
-                    Text(text = "搜索", fontSize = 16.sp,modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text(
+                        text = "搜索",
+                        fontSize = 16.sp,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
                 }
             }
         }
