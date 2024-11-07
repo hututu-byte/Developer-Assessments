@@ -1,5 +1,6 @@
 package com.qiniu.githubstatistic.navigation
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -91,36 +92,43 @@ fun NavigationGraph(
         }
         AnimatedVisibility(isNavBarVis) {
             Row(
-                modifier = Modifier.fillMaxWidth().navigationBarsPadding(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                Column(modifier = Modifier.padding(vertical = 4.dp).clickable {
-                    if (select != 0) {
-                        navHostController.navigate(Screen.HomePage.route) {
-                            popUpTo(Screen.HomePage.route) {
-                                inclusive = false
+                Column(modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        if (select != 0) {
+                            navHostController.navigate(Screen.HomePage.route) {
+                                popUpTo(Screen.HomePage.route) {
+                                    inclusive = false
+                                }
                             }
                         }
-                    }
-                }) {
+                    }) {
                     Icon(
                         painterResource(id = if (select == 0) R.drawable.home_fill else R.drawable.home),
                         contentDescription = "Previous Level",
                         modifier = Modifier
-                            .size(28.dp).align(Alignment.CenterHorizontally),
+                            .size(28.dp)
+                            .align(Alignment.CenterHorizontally),
                         tint = Color.Unspecified
                     )
                     Text(text = "首页", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
                 }
-                Column(modifier = Modifier.padding(vertical = 4.dp).clickable {
-                    if (select != 1) {
-                        navHostController.navigate(Screen.SearchPage.route) {
-                            popUpTo(Screen.SearchPage.route) {
-                                inclusive = true
+                Column(modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        if (select != 1) {
+                            navHostController.navigate(Screen.SearchPage.route) {
+                                popUpTo(Screen.SearchPage.route) {
+                                    inclusive = true
+                                }
                             }
                         }
-                    }
-                }) {
+                    }) {
                     Icon(
                         painterResource(id = if (select == 1) R.drawable.search_filled else R.drawable.search_outline),
                         contentDescription = "我的",

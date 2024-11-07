@@ -92,7 +92,8 @@ data class CustomColorScheme(
     val colorScheme: ColorScheme,
     val tagColor: Color,
     val tagColorSelected: Color,
-    val userPageBackground: Color
+    val userPageBackground: Color,
+    val repositoryBorder : Color
 )
 
 // 定义 CompositionLocal
@@ -101,7 +102,8 @@ val LocalCustomColors = compositionLocalOf {
         lightColorScheme(),
         TagColorLight,
         TagColorLightSelected,
-        UserBackgroundLight
+        UserBackgroundLight,
+        RepositoryBorderLight
     )
 }
 
@@ -116,12 +118,14 @@ fun GithubStatisticTheme(
     val tagColor = if (darkTheme) TagColorDark else TagColorLight
     val tagColorSelected = if (darkTheme) TagColorDarkSelected else TagColorLightSelected
     val onBackground = if (darkTheme) UserBackgroundDark else UserBackgroundLight
+    val repositoryBorder = if (darkTheme) RepositoryBorderDark else RepositoryBorderLight
 
     val extendedColors = CustomColorScheme(
         colorScheme = colorScheme,
         tagColor = tagColor,
         tagColorSelected = tagColorSelected,
-        userPageBackground = onBackground
+        userPageBackground = onBackground,
+        repositoryBorder = repositoryBorder
     )
 
     CompositionLocalProvider(LocalCustomColors provides extendedColors) {

@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomePageViewModel @Inject constructor(private val homeService: HomeService) : ViewModel() {
-    private val _homeState = MutableStateFlow(HomeState(emptyList(), refreshing = false, loading = false,""))
+    private val _homeState = MutableStateFlow(HomeState())
     val homeState = _homeState.asStateFlow()
 
     private val _homeIntent = MutableSharedFlow<HomeIntent>()
@@ -51,7 +51,7 @@ class HomePageViewModel @Inject constructor(private val homeService: HomeService
                             println(_homeState.value)
                         }catch (e:Exception){
                             Log.e("TAG", "processIntent: $e" )
-                            _homeState.value = _homeState.value.copy(error = e.message?:"")
+                            _homeState.value = _homeState.value.copy(error = e.message?:"", refreshing = false, showDialog = true)
                         }
 
                     }
@@ -68,12 +68,14 @@ class HomePageViewModel @Inject constructor(private val homeService: HomeService
                             _homeState.value = _homeState.value.copy(userList = list, loading = false)
                         }catch (e:Exception){
                             Log.e("TAG", "processIntent: $e" )
-                            _homeState.value = _homeState.value.copy(error = e.message?:"")
+                            _homeState.value = _homeState.value.copy(error = "刷新失败，请检查网络", showDialog = true)
                         }
                     }
                 }
 
-
+                HomeIntent.DismissDialog -> {
+                    _homeState.value = _homeState.value.copy(error = "", showDialog = false)
+                }
             }
         }
     }

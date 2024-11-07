@@ -5,6 +5,7 @@ import com.coder.vincent.sharp_retrofit.call_adapter.flow.FlowCallAdapterFactory
 import com.qiniu.githubstatistic.database.seachHistory.SearchHistoryDao
 import com.qiniu.githubstatistic.database.seachHistory.SearchHistoryDatabase
 import com.qiniu.githubstatistic.service.HomeService
+import com.qiniu.githubstatistic.service.UserService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,6 +54,12 @@ object AppModule {
     @Provides
     fun provideHomeService(retrofit: Retrofit): HomeService {
         return retrofit.create(HomeService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideUserService(retrofit: Retrofit): UserService {
+        return retrofit.create(UserService::class.java)
     }
 
     @Singleton

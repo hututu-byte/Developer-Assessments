@@ -19,6 +19,9 @@ val TagColorDarkSelected = Color(0xFFC49266)
 val UserBackgroundLight = Color(0xFFFCFCFC)
 val UserBackgroundDark = Color(0xFF323232)
 
+val RepositoryBorderLight = Color(0xFFB0B0B0)
+val RepositoryBorderDark = Color(0xFFF2F2F2)
+
 object LanguageColor{
     val colorMap = mapOf(
         "Java" to Color(0xFFB07219),

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -49,6 +50,35 @@ fun HomePage(navHostController: NavHostController,homePageViewModel: HomePageVie
     val state by homePageViewModel.homeState.collectAsState()
     val lazyListState = rememberLazyListState()
 
+    if (state.showDialog) {
+        AlertDialog(
+            onDismissRequest = { homePageViewModel.sendIntent(HomeIntent.Refresh) },
+            title = { Text("Error") },
+            text = { Text(state.error) },
+            dismissButton = {
+                Text(
+                    text = "Cancel",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            homePageViewModel.sendIntent(HomeIntent.DismissDialog)
+                        }
+                )
+            },
+            confirmButton = {
+                Text(
+                    text = "Retry",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            homePageViewModel.sendIntent(HomeIntent.DismissDialog)
+                            homePageViewModel.sendIntent(HomeIntent.Refresh)
+                        }
+                )
+            }
+        )
+    }
+
     // 下拉刷新功能
     SwipeRefresh(
         state = rememberSwipeRefreshState(state.refreshing),
@@ -66,6 +96,7 @@ fun HomePage(navHostController: NavHostController,homePageViewModel: HomePageVie
             items(state.userList.size) {
                 PersonalJudgeCard(state.userList[it]){
                     val userDetail = Json.encodeToString(UserDetail.serializer(),state.userList[it])
+                    Log.e("TAG", "HomePage: $userDetail", )
                     navHostController.navigate(Screen.UserDetailedPage.route + "/${userDetail}")
                 }
             }
@@ -80,7 +111,7 @@ fun HomePage(navHostController: NavHostController,homePageViewModel: HomePageVie
                     val lastVisibleItemIndex = visibleItems.last().index
                     val totalItems = state.userList.size
                     // 检查是否接近列表底部
-                    if (lastVisibleItemIndex == totalItems - 1) {
+                    if (lastVisibleItemIndex == totalItems - 1 && (lastVisibleItemIndex+1) % 10 == 0 && !state.loading) {
                         homePageViewModel.sendIntent(HomeIntent.Loading)
                     }
                 }
@@ -90,6 +121,9 @@ fun HomePage(navHostController: NavHostController,homePageViewModel: HomePageVie
 
 @Composable
 fun PersonalJudgeCard(userDetail: UserDetail,more:()->Unit = {}) {
+    if (userDetail.country.length > 20){
+        val list = userDetail.country.split(",")
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
