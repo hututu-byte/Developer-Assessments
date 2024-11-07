@@ -38,7 +38,7 @@
     </select>
 
     <select id="getRandomDevelopers" resultMap="DeveloperResultMap">
-        SELECT github_id,github_username, talent_rank, bio, country
+        SELECT github_id,github_username, talent_rank, bio, country ,followers, following ,score
         FROM developers
         ORDER BY RAND()
         LIMIT 10

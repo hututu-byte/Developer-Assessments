@@ -1,9 +1,6 @@
 package com.example.developerassessmentsmaster.controller;
 
-import com.example.developerassessmentsmaster.model.Developer;
-import com.example.developerassessmentsmaster.model.DeveloperInfo;
-import com.example.developerassessmentsmaster.model.Project;
-import com.example.developerassessmentsmaster.model.Result;
+import com.example.developerassessmentsmaster.model.*;
 import com.example.developerassessmentsmaster.service.DeveloperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +22,20 @@ public class DeveloperController {
         return Result.success(developers);
     }
 
-    // 根据 github_id 获取开发者的基本信息
-    // 使用 @PathVariable 获取路径变量中的 githubId
+    /**
+     * 根据 github_id 获取开发者的详细信息
+     *
+     * @param githubId 开发者的 GitHub ID
+     * @return Result<DeveloperDetailInfo> 对象，包含详细信息
+     */
     @GetMapping("/basic-info/{githubId}")
-    public Result<DeveloperInfo> getDeveloperBasicInfo(@PathVariable Long githubId) {
-        DeveloperInfo developerInfo = developerService.getDeveloperBasicInfoByGithubId(githubId);
+    public Result<DeveloperDetailInfo> getDeveloperBasicInfo(@PathVariable Long githubId) {
+        DeveloperDetailInfo developerDetailInfo = developerService.getDeveloperDetailInfoByGithubId(githubId);
 
-        if (developerInfo != null) {
-            return Result.success(developerInfo);
+        if (developerDetailInfo != null) {
+            return Result.success(developerDetailInfo);
         } else {
-            return Result.error(401,"Developer not found");
+            return Result.error(401, "Developer not found");
         }
     }
 
@@ -42,15 +43,12 @@ public class DeveloperController {
     @GetMapping("/search")
     public Result<List<DeveloperInfo>> searchDevelopersByFilters(
             @RequestParam(required = false) String githubUsername,
-            @RequestParam(required = false) String language,
+            @RequestParam(required = false) List<String> language, // 修改为 List<String>
             @RequestParam(required = false) String country,
-            @RequestParam(defaultValue = "desc") String sort) {  // 增加排序参数，默认为升序
+            @RequestParam(defaultValue = "desc") String sort) {  // 增加排序参数，默认为降序
 
-        // 如果传入了多个 language，按逗号分隔
-        String[] languages = null;
-        if (language != null && !language.isEmpty()) {
-            languages = language.split(",");
-        }
+        // 直接使用传入的语言列表，无需分割
+        List<String> languages = language;
 
         // 查询开发者并返回结果
         List<DeveloperInfo> developerInfoList = developerService.searchDevelopersByUsernameAndLanguages(githubUsername, languages, country);
