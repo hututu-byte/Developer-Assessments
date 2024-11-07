@@ -53,32 +53,260 @@
 ![36150f22447e6b6826a112d5531e5ca2](https://github.com/user-attachments/assets/caab9485-f1e8-4518-bf58-7e6f692f5512)
 - **数据展示与交互**：主页展示随机用户的数据以及TalentRank评分等级等，可以点击进去查看详细数据。搜索页面可以根据国家以及语言限制，对用户进行搜索，搜索出来的结果按照降序排列。
 ### 4.2 后端设计（Java）
+
 - **API 设计与实现**：详细说明安卓前端与 Java 后端之间的 API 端点设计，包括请求和响应格式。
+
+  后端API是前端与后端之间的桥梁，负责处理客户端请求，执行业务逻辑，并返回相应的数据。以下将详细介绍**开发者评估应用**的主要API接口，包括其功能、请求方式、路径、参数、响应格式及示例。
+
+  #####  API 功能概述
+
+  **开发者评估应用**提供以下主要API接口：
+
+  1. **获取随机开发者列表**
+  2. **获取开发者的详细信息**
+  3. **根据过滤条件搜索开发者**
+
+  #####  接口详细设计
+
+  以下是三个主要API接口的详细设计：
+
+  ------
+
+  ##### **1. 获取随机开发者列表**
+
+  - **接口路径**: `/api/developers/random`
+
+  - **请求方法**: `GET`
+
+  - **功能描述**: 获取一组随机的开发者信息，包括其TalentRank、国家、领域等基本信息。
+
+  - **请求参数**: 无
+
+  - **响应格式**:
+
+    ```json
+    json复制代码{
+      "status": "success",
+      "data": [
+        {
+          "githubId": 123456,
+          "githubUsername": "johnDoe",
+          "talentRank": "HIGH",
+          "bio": "Senior Java Developer",
+          "country": "China",
+          "following": 50,
+          "followers": 200,
+          "score": 350.0,
+          "mostCommonTag": "Java, Spring, MySQL"
+        },
+        ...
+      ]
+    }
+    ```
+
+  - **错误响应**:
+
+    ```json
+    json复制代码{
+      "status": "error",
+      "code": 500,
+      "message": "Internal Server Error"
+    }
+    ```
+
+  - **示例代码**:
+
+    ```java
+    java复制代码@GetMapping("/random")
+    public Result<List<DeveloperInfo>> getRandomDevelopers() {
+        List<DeveloperInfo> developers = developerService.getRandomDevelopersWithProjects();
+        return Result.success(developers);
+    }
+    ```
+
+  ------
+
+  ##### **2. 获取开发者的详细信息**
+
+  - **接口路径**: `/api/developers/basic-info/{githubId}`
+
+  - **请求方法**: `GET`
+
+  - **功能描述**: 根据开发者的GitHub ID获取其详细信息，包括关注者数、关注数、国家、Bio、项目列表等。
+
+  - **请求参数**:
+
+    - 路径参数
+
+      :
+
+      - `githubId` (Long): 开发者的GitHub ID
+
+  - **响应格式**:
+
+    ```json
+    json复制代码{
+      "status": "success",
+      "data": {
+        "githubId": 123456,
+        "githubUsername": "johnDoe",
+        "followers": 200,
+        "following": 50,
+        "country": "China",
+        "bio": "Senior Java Developer",
+        "totalProjects": 10,
+        "totalStars": 500,
+        "totalForks": 100,
+        "topProjects": [
+          {
+            "name": "ProjectA",
+            "description": "A Java-based project",
+            "stars": 150,
+            "language": "Java"
+          },
+          ...
+        ]
+      }
+    }
+    ```
+
+  - **错误响应**:
+
+    ```json
+    json复制代码{
+      "status": "error",
+      "code": 401,
+      "message": "Developer not found"
+    }
+    ```
+
+  - **示例代码**:
+
+    ```java
+    java复制代码@GetMapping("/basic-info/{githubId}")
+    public Result<DeveloperDetailInfo> getDeveloperBasicInfo(@PathVariable Long githubId) {
+        DeveloperDetailInfo developerDetailInfo = developerService.getDeveloperDetailInfoByGithubId(githubId);
+    
+        if (developerDetailInfo != null) {
+            return Result.success(developerDetailInfo);
+        } else {
+            return Result.error(401, "Developer not found");
+        }
+    }
+    ```
+
+  ------
+
+  ##### **3. 根据过滤条件搜索开发者**
+
+  - **接口路径**: `/api/developers/search`
+
+  - **请求方法**: `GET`
+
+  - **功能描述**: 根据GitHub用户名、编程语言和国家进行开发者搜索，支持按分数排序。
+
+  - **请求参数**:
+
+    - 查询参数
+
+      :
+
+      - `githubUsername` (String, 可选): 开发者的GitHub用户名
+      - `language` (List<String>, 可选): 开发者擅长的编程语言列表
+      - `country` (String, 可选): 开发者所属国家
+      - `sort` (String, 可选, 默认值为 `desc`): 排序方式，`desc`为降序，`asc`为升序
+
+  - **响应格式**:
+
+    ```json
+    json复制代码{
+      "status": "success",
+      "data": [
+        {
+          "githubId": 123456,
+          "githubUsername": "johnDoe",
+          "talentRank": "HIGH",
+          "bio": "Senior Java Developer",
+          "country": "China",
+          "following": 50,
+          "followers": 200,
+          "score": 350.0,
+          "mostCommonTag": "Java, Spring, MySQL"
+        },
+        ...
+      ]
+    }
+    ```
+
+  - **错误响应**:
+
+    ```json
+    json复制代码{
+      "status": "error",
+      "code": 401,
+      "message": "No developers found with the given filters."
+    }
+    ```
+
+  - **示例代码**:
+
+    ```java
+    java复制代码@GetMapping("/search")
+    public Result<List<DeveloperInfo>> searchDevelopersByFilters(
+            @RequestParam(required = false) String githubUsername,
+            @RequestParam(required = false) List<String> language, // 修改为 List<String>
+            @RequestParam(required = false) String country,
+            @RequestParam(defaultValue = "desc") String sort) {  // 增加排序参数，默认为降序
+    
+        // 直接使用传入的语言列表，无需分割
+        List<String> languages = language;
+    
+        // 查询开发者并返回结果
+        List<DeveloperInfo> developerInfoList = developerService.searchDevelopersByUsernameAndLanguages(githubUsername, languages, country);
+    
+        // 根据 sort 参数进行排序
+        if ("desc".equalsIgnoreCase(sort)) {
+            developerInfoList.sort(Comparator.comparingDouble(DeveloperInfo::getScore).reversed());  // 降序
+        } else {
+            developerInfoList.sort(Comparator.comparingDouble(DeveloperInfo::getScore));  // 升序
+        }
+    
+        // 如果没有找到符合条件的开发者，返回失败信息
+        if (developerInfoList.isEmpty()) {
+            return Result.error(401, "No developers found with the given filters.");
+        }
+    
+        return Result.success(developerInfoList);
+    }
+    ```
+
+  ------
+
+  ##### 接口规范总结
+
+  | 接口名称               | 方法 | 路径                                    | 请求参数                                                  | 响应数据类型          | 描述                      |
+  | ---------------------- | ---- | --------------------------------------- | --------------------------------------------------------- | --------------------- | ------------------------- |
+  | 获取随机开发者列表     | GET  | `/api/developers/random`                | 无                                                        | `List<DeveloperInfo>` | 获取随机开发者信息        |
+  | 获取开发者详细信息     | GET  | `/api/developers/basic-info/{githubId}` | 路径参数: `githubId` (Long)                               | `DeveloperDetailInfo` | 根据GitHub ID获取详细信息 |
+  | 根据过滤条件搜索开发者 | GET  | `/api/developers/search`                | 查询参数: `githubUsername`, `language`, `country`, `sort` | `List<DeveloperInfo>` | 根据条件搜索开发者        |
+
 - **数据库设计**：数据库表结构与存储方案（例如，用户信息表、开发者评估表）。
-- **安全性措施**：包括身份验证（如 JWT）、API 访问控制和防护措施。
 
-## 5. 安全与隐私
-- **数据传输安全**：描述安卓端和后端之间的 HTTPS 通信，确保数据传输的加密性。
-- **用户隐私保护**：遵守Github的用户信息安全协议，严格保证数据的安全。
+## 5. 部署与发布
 
-## 6. 部署与发布
 - **本地部署** 目前还在本地部署测试阶段
 
-## 7. 测试
-- **前端测试**：安卓端的功能性测试（UI 测试、用户交互测试）。
-- **后端测试**：Java 后端的单元测试、集成测试，API 测试。
-- **测试覆盖率报告**：展示主要功能的测试覆盖率。
+## 6. 用户指南
 
-## 8. 用户指南
-- **安卓应用安装与运行步骤**：包括首次使用的注册和登录流程。
-- **功能使用教程**：如何查看和筛选开发者的评估结果，解释各评估项的含义。
-- **常见问题解答 (FAQ)**：列出常见问题并解答。
+- 用户使用项目见 : 项目程序运行说明.md。
 
-## 9. 未来改进计划
+## 7. 未来改进计划
+
 - 获取用户的头像，优化页面
 - 对于搜索采用分页的方法，优化搜索策略，使搜索速度更快
 - 优化评分算法，以及国家预测算法，使结果更精确
 - 用户反馈的整合与应用迭代计划
 
-## 10. 附录
+## 8. 附录
+
 - Android App中大部分图标来自阿里巴巴IconFont开源图标库，用于非盈利目的，侵权必删。
